@@ -4,7 +4,7 @@ Problem Statment Partner: General Problem Statement 2 - Automating Invoice Readi
 
 Introduction:
 
-Purpose & Motivation:
+Purpose & Motivation: To help my company
 
 How does the Application Work:
 
