@@ -18,11 +18,15 @@ I would suggest a role play for this demo. There should be 4 roles:
 
 Step 1: External Parties
 _URL: dropbox.com_
+
 _Login ID: wengtai_2022@outlook.com_
+
 _Password: Microsoft2022!_
 
 _URL: onedrive.live.com_
+
 _Login ID: wengtai_2022@outlook.com_
+
 _Password: Microsoft2022!_
 
 Usually, external parties are the ones who submit invoices. So in terms of security, "easyinvoicesubmission" does not allow them to access Wide World Importers' internal applications. Hence the first step for them is to upload the invoices (image or pdf format) into a DropBox application under the folder "Invoices Submission". Once the upload is completed (the trigger), the file will be ingested into One Drive under the folder " hackathon2022" for Wide World Importers staffs to process (from this point onwards will be internal applications). The trigger is set to check every 3 minutes.
