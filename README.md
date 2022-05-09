@@ -16,7 +16,9 @@ I would suggest a role play for this demo. There should be 4 roles:
 3. Finance Colleagues: Process invoice
 4. Finance Management: Be alerted on invoice with high threshold
 
+
 Step 1: External Parties
+
 
 _URL: dropbox.com_
 
@@ -33,7 +35,9 @@ _Password: Microsoft2022!_
 Usually, external parties are the ones who submit invoices. So in terms of security, "easyinvoicesubmission" does not allow them to access Wide World Importers' internal applications. Hence the first step for them is to upload the invoices (image or pdf format) into a DropBox application under the folder "Invoices Submission". Once the upload is completed (the trigger), the file will be ingested into One Drive under the folder " hackathon2022" for Wide World Importers staffs to process (from this point onwards will be internal applications). The trigger is set to check every 3 minutes.
 
 
+
 Step 2: Company Representatives
+
 
 _URL: outlook.com_
 
@@ -49,14 +53,18 @@ Let's start with the Unsuccessful path. Unsuccessful is defined when the analyzi
 
 
 Step 3: Finance Colleagues
+
 _URL: outlook.com_
+
 _Login ID: mshackathon_2@outlook.com_
+
 _Password: Microsoft2022!_
 
 Next, lets focus on the Successful path. Successful is defined when the analyzing is successful. However, there is a chance that "easyinvoicesubmission" is not confident on the results. So there is a condition to check on the invoice quality. There are 4 confidence values that are imperative to check on: Vendor Name, Invoice Date, Invoice Amount and Amount Due. All 4 values should pass the 90% confidence level. If either one of the 4 values does not pass the 90% confidence level, Finance Colleagues will be sent an email notification to manually verify the invoice details before processing the invoice. However, in the ideal scenario where all 4 values pass the 90% confidence level, Finance Colleagues also will be sent an email notification to proceed with processing the invoice.
 
 
 Step 4: Finance Management
+
 
 _URL: outlook.com_
 
