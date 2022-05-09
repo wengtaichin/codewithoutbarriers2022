@@ -17,6 +17,7 @@ I would suggest a role play for this demo. There should be 4 roles:
 4. Finance Management: Be alerted on invoice with high threshold
 
 Step 1: External Parties
+
 _URL: dropbox.com_
 
 _Login ID: wengtai_2022@outlook.com_
@@ -33,8 +34,11 @@ Usually, external parties are the ones who submit invoices. So in terms of secur
 
 
 Step 2: Company Representatives
+
 _URL: outlook.com_
+
 _Login ID: mshackathon_1@outlook.com_
+
 _Password: Microsoft2022!_
 
 Once the invoice ingestion is completed, Company Representatives will be notified on a new invoice submission. However, at this point in time, there is no analysis on the invoice details yet as this is purely a new invoice submission notification email. The invoice file will be attached into the email.
@@ -53,8 +57,11 @@ Next, lets focus on the Successful path. Successful is defined when the analyzin
 
 
 Step 4: Finance Management
+
 _URL: outlook.com_
+
 _Login ID: mshackathon_3@outlook.com_
+
 _Password: Microsoft2022!_
 
 "easyinvoicesubmission" will continue to determine if either the Invoice Amount or Amount Due is greater than 1000 as that is the threshold set for categorized as high threshold invoice. For invoice which meets the criteria, Finance Management will be alerted with an email notification. It is just a FYI email and no action is required from Finance Management. For invoice with low threshold value, the process stops at Finance processing and for invoice with high threshold value, the process stops at Finance Management alert.
