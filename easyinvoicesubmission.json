@@ -1,0 +1,328 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Analyze_Invoice": {
+                "inputs": {
+                    "body": "@triggerBody()",
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['formrecognizer']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2.1/prebuilt/invoice/analyze",
+                    "queries": {
+                        "includeTextDetails": true
+                    }
+                },
+                "runAfter": {
+                    "Notify_on_New_Invoice_Submission": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Ingest_Invoice": {
+                "inputs": {
+                    "body": "@triggerBody()",
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['onedrive']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/datasets/default/files",
+                    "queries": {
+                        "folderPath": "/hackathon2022",
+                        "name": "@base64ToString(triggerOutputs()['headers']['x-ms-file-name-encoded'])"
+                    }
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                },
+                "type": "ApiConnection"
+            },
+            "Notify_on_New_Invoice_Submission": {
+                "inputs": {
+                    "body": {
+                        "Attachments": [
+                            {
+                                "ContentBytes": "@{base64(triggerBody())}",
+                                "Name": "New Invoice"
+                            }
+                        ],
+                        "Body": "<p>Dear Company Representatives,<br>\n<br>\nWe would like to inform you that there is a new invoice submission. The AI system \"easyinvoicesubmission\" is still analyzing the details of the invoice.<br>\n<br>\nPlease find the invoice file as attached.<br>\n<br>\nThis is a computer generated email. Please do not reply to this email.</p>",
+                        "Subject": "[FOR INFO] New Invoice Submission",
+                        "To": "mshackathon_1@outlook.com"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['outlook']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Ingest_Invoice": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Successful": {
+                "actions": {
+                    "Check_Invoice_Quality": {
+                        "actions": {
+                            "Check_Invoice_Threshold": {
+                                "actions": {
+                                    "Alert_Finance_Management_on_High_Threshold_Invoice": {
+                                        "inputs": {
+                                            "body": {
+                                                "Attachments": [
+                                                    {
+                                                        "ContentBytes": "@{base64(triggerBody())}",
+                                                        "Name": "Invoice from @{items('Successful')?['fields']?['VendorName']?['text']} Dated @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']}"
+                                                    }
+                                                ],
+                                                "Body": "<p>Dear Finance Management Team,<br>\n<br>\nWe would like to alert you that there is a new invoice submission from @{items('Successful')?['fields']?['VendorName']?['text']} dated @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']} which is above threshold.<br>\n<br>\nThe AI system \"easyinvoicesubmission\" has finished analyzing the details of the invoice. The details are as below:<br>\n<br>\nVendor: @{items('Successful')?['fields']?['VendorName']?['text']}<br>\nInvoice ID: @{items('Successful')?['fields']?['InvoiceId']?['text']}<br>\nInvoice Date: @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']}<br>\nInvoice Amount Total: @{items('Successful')?['fields']?['InvoiceTotal']?['valueNumber']}<br>\nInvoice Amount Total (confidence): @{items('Successful')?['fields']?['InvoiceTotal']?['confidence']}<br>\n<br>\nInvoice Due Date: @{items('Successful')?['fields']?['DueDate']?['valueDate']}<br>\nInvoice Amount Due: @{items('Successful')?['fields']?['AmountDue']?['valueNumber']}<br>\nInvoice Amount Due (confidence): @{items('Successful')?['fields']?['AmountDue']?['confidence']}<br>\n<br>\nPlease find the invoice file as attached.<br>\n<br>\nThis is a computer generated email. Please do not reply to this email.</p>",
+                                                "Importance": "High",
+                                                "Subject": "[ALERT] New Invoice from @{items('Successful')?['fields']?['VendorName']?['text']} Dated @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']} ",
+                                                "To": "mshackathon_3@outlook.com"
+                                            },
+                                            "host": {
+                                                "connection": {
+                                                    "name": "@parameters('$connections')['outlook']['connectionId']"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "path": "/v2/Mail"
+                                        },
+                                        "runAfter": {},
+                                        "type": "ApiConnection"
+                                    }
+                                },
+                                "expression": {
+                                    "or": [
+                                        {
+                                            "greater": [
+                                                "@items('Successful')?['fields']?['InvoiceTotal']?['valueNumber']",
+                                                1000
+                                            ]
+                                        },
+                                        {
+                                            "greater": [
+                                                "@items('Successful')?['fields']?['AmountDue']?['valueNumber']",
+                                                1000
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "runAfter": {
+                                    "Process_Invoice": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "If"
+                            },
+                            "Process_Invoice": {
+                                "inputs": {
+                                    "body": {
+                                        "Attachments": [
+                                            {
+                                                "ContentBytes": "@{base64(triggerBody())}",
+                                                "Name": "Invoice from @{items('Successful')?['fields']?['VendorName']?['text']} Dated @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']}"
+                                            }
+                                        ],
+                                        "Body": "<p>Dear Finance Colleagues,<br>\n<br>\nWe would like to inform you that there is a new invoice submission from @{items('Successful')?['fields']?['VendorName']?['text']} dated @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']} for your processing.<br>\n<br>\nThe AI system \"easyinvoicesubmission\" has finished analyzing the details of the invoice. The details are as below:<br>\n<br>\nVendor: @{items('Successful')?['fields']?['VendorName']?['text']}<br>\nInvoice ID: @{items('Successful')?['fields']?['InvoiceId']?['text']}<br>\nInvoice Date: @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']}<br>\nInvoice Amount Total: @{items('Successful')?['fields']?['InvoiceTotal']?['valueNumber']}<br>\nInvoice Amount Total (confidence): @{items('Successful')?['fields']?['InvoiceTotal']?['confidence']}<br>\n<br>\nInvoice Due Date: @{items('Successful')?['fields']?['DueDate']?['valueDate']}<br>\nInvoice Amount Due: @{items('Successful')?['fields']?['AmountDue']?['valueNumber']}<br>\nInvoice Amount Due (confidence): @{items('Successful')?['fields']?['AmountDue']?['confidence']}<br>\n<br>\nPlease find the invoice file as attached.<br>\n<br>\nThis is a computer generated email. Please do not reply to this email.</p>",
+                                        "Subject": "[FOR PROCESSING] New Invoice from @{items('Successful')?['fields']?['VendorName']?['text']} Dated @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']}",
+                                        "To": "mshackathon_2@outlook.com"
+                                    },
+                                    "host": {
+                                        "connection": {
+                                            "name": "@parameters('$connections')['outlook']['connectionId']"
+                                        }
+                                    },
+                                    "method": "post",
+                                    "path": "/v2/Mail"
+                                },
+                                "runAfter": {},
+                                "type": "ApiConnection"
+                            }
+                        },
+                        "else": {
+                            "actions": {
+                                "Verify_Invoice_Manually": {
+                                    "inputs": {
+                                        "body": {
+                                            "Attachments": [
+                                                {
+                                                    "ContentBytes": "@{base64(triggerBody())}",
+                                                    "Name": "Invoice from @{items('Successful')?['fields']?['VendorName']?['text']} Dated @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']}"
+                                                }
+                                            ],
+                                            "Body": "<p>Dear Finance Colleagues,<br>\n<br>\nWe would like to inform you that there is a new invoice submission from @{items('Successful')?['fields']?['VendorName']?['text']} dated @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']} for your processing.<br>\n<br>\nThe AI system \"easyinvoicesubmission\" has finished analyzing the details of the invoice.<br>\n<br>\nHowever, the confidence level for at least one of the critical fields below is &lt;90%. <br>\n<br>\nVendor (confidence): @{items('Successful')?['fields']?['VendorName']?['confidence']}<br>\nInvoice Date (confidence): @{items('Successful')?['fields']?['InvoiceDate']?['confidence']}<br>\nInvoice Amount Total (confidence): @{items('Successful')?['fields']?['InvoiceTotal']?['confidence']}<br>\nInvoice Amount Due (confidence): @{items('Successful')?['fields']?['AmountDue']?['confidence']}<br>\n<br>\nHence we recommend that a manual verification being carried out on the details below:<br>\n<br>\nVendor: @{items('Successful')?['fields']?['VendorName']?['text']}<br>\nInvoice ID: @{items('Successful')?['fields']?['InvoiceId']?['text']}<br>\nInvoice Date: @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']}<br>\nInvoice Amount Total: @{items('Successful')?['fields']?['InvoiceTotal']?['valueNumber']}<br>\n<br>\nInvoice Due Date: @{items('Successful')?['fields']?['DueDate']?['valueDate']}<br>\nInvoice Amount Due: @{items('Successful')?['fields']?['AmountDue']?['valueNumber']}<br>\n<br>\nThis is a computer generated email. Please do not reply to this email.</p>",
+                                            "Subject": "[MANUAL VERIFICATION REQUIRED] New Invoice from @{items('Successful')?['fields']?['VendorName']?['text']} Dated @{items('Successful')?['fields']?['InvoiceDate']?['valueDate']}",
+                                            "To": "mshackathon_2@outlook.com"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['outlook']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/v2/Mail"
+                                    },
+                                    "runAfter": {},
+                                    "type": "ApiConnection"
+                                }
+                            }
+                        },
+                        "expression": {
+                            "and": [
+                                {
+                                    "greaterOrEquals": [
+                                        "@items('Successful')?['fields']?['VendorName']?['confidence']",
+                                        0.9
+                                    ]
+                                },
+                                {
+                                    "greaterOrEquals": [
+                                        "@items('Successful')?['fields']?['InvoiceDate']?['confidence']",
+                                        0.9
+                                    ]
+                                },
+                                {
+                                    "greaterOrEquals": [
+                                        "@items('Successful')?['fields']?['InvoiceTotal']?['confidence']",
+                                        0.9
+                                    ]
+                                },
+                                {
+                                    "greaterOrEquals": [
+                                        "@items('Successful')?['fields']?['AmountDue']?['confidence']",
+                                        0.9
+                                    ]
+                                }
+                            ]
+                        },
+                        "runAfter": {},
+                        "type": "If"
+                    }
+                },
+                "foreach": "@body('Analyze_Invoice')?['analyzeResult']?['documentResults']",
+                "runAfter": {
+                    "Analyze_Invoice": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Foreach"
+            },
+            "Unsuccessful": {
+                "actions": {
+                    "Request_for_a_Clearer_Invoice": {
+                        "inputs": {
+                            "body": {
+                                "Attachments": [
+                                    {
+                                        "ContentBytes": "@{base64(triggerBody())}",
+                                        "Name": "New Invoice"
+                                    }
+                                ],
+                                "Body": "<p>Dear Company Representatives,<br>\n<br>\nThe AI system \"easyinvoicesubmission\" has finished analyzing the details of the invoice.<br>\n<br>\nHowever, the invoice is unclear and has failed to process further.<br>\n<br>\nKindly request for a clearer version of the invoice from the respected vendor.<br>\n<br>\nPlease find the invoice file as attached.<br>\n<br>\nThis is a computer generated email. Please do not reply to this email.</p>",
+                                "Subject": "[FOLLOW UP] Unclear Invoice ",
+                                "To": "mshackathon_1@outlook.com"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['outlook']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/v2/Mail"
+                        },
+                        "runAfter": {},
+                        "type": "ApiConnection"
+                    }
+                },
+                "foreach": "@body('Analyze_Invoice')?['analyzeResult']?['documentResults']",
+                "runAfter": {
+                    "Analyze_Invoice": [
+                        "TimedOut",
+                        "Skipped",
+                        "Failed"
+                    ]
+                },
+                "type": "Foreach"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "Submit_Invoice_(by_External)": {
+                "evaluatedRecurrence": {
+                    "frequency": "Minute",
+                    "interval": 3
+                },
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['dropbox']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/datasets/default/triggers/onnewfile",
+                    "queries": {
+                        "folderId": "id:WoZWzQBXdRoAAAAAAAAABg",
+                        "inferContentType": true,
+                        "queryParametersSingleEncoded": true
+                    }
+                },
+                "metadata": {
+                    "id:WoZWzQBXdRoAAAAAAAAABg": "/invoices submission"
+                },
+                "recurrence": {
+                    "frequency": "Minute",
+                    "interval": 3
+                },
+                "type": "ApiConnection"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "dropbox": {
+                    "connectionId": "/subscriptions/f264b527-df8a-4618-8710-57460c6b9352/resourceGroups/hackathon2022-rg/providers/Microsoft.Web/connections/dropbox",
+                    "connectionName": "dropbox",
+                    "id": "/subscriptions/f264b527-df8a-4618-8710-57460c6b9352/providers/Microsoft.Web/locations/australiasoutheast/managedApis/dropbox"
+                },
+                "formrecognizer": {
+                    "connectionId": "/subscriptions/f264b527-df8a-4618-8710-57460c6b9352/resourceGroups/hackathon2022-rg/providers/Microsoft.Web/connections/formrecognizer",
+                    "connectionName": "formrecognizer",
+                    "id": "/subscriptions/f264b527-df8a-4618-8710-57460c6b9352/providers/Microsoft.Web/locations/australiasoutheast/managedApis/formrecognizer"
+                },
+                "onedrive": {
+                    "connectionId": "/subscriptions/f264b527-df8a-4618-8710-57460c6b9352/resourceGroups/hackathon2022-rg/providers/Microsoft.Web/connections/onedrive",
+                    "connectionName": "onedrive",
+                    "id": "/subscriptions/f264b527-df8a-4618-8710-57460c6b9352/providers/Microsoft.Web/locations/australiasoutheast/managedApis/onedrive"
+                },
+                "outlook": {
+                    "connectionId": "/subscriptions/f264b527-df8a-4618-8710-57460c6b9352/resourceGroups/hackathon2022-rg/providers/Microsoft.Web/connections/outlook",
+                    "connectionName": "outlook",
+                    "id": "/subscriptions/f264b527-df8a-4618-8710-57460c6b9352/providers/Microsoft.Web/locations/australiasoutheast/managedApis/outlook"
+                }
+            }
+        }
+    }
+}
