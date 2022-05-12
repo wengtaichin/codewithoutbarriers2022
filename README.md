@@ -117,10 +117,10 @@ Idea #3: Allow Finance Management to Approve or Reject Invoice with High thresho
 
 The workflow can be further improved by allowing Finance Management to approve or reject invoices with high threshold value before Finance Colleagues proceed to process them. The approval process is sometimes required as part of Governance process.
 
-Idea #4: Save the Processed Data into Flat File 
+Idea #4: Transfer the Processed Data into Azure SQL Data Warehouse or via API
 
-I also intend to save the processed data analyzed by the prebuilt model into a flat file such as CSV or JSON . Everyday there will be a cut off time (assuming 6pm) where invoices submitted and data analyzed by "easyinvoicesubmission" before 6pm would be compiled. This file will be auto uploaded to the internal Finance application (e.g. SAP) so Finance can make payment to the external parties on time. All data is automatically filled in to the internal Finance application and no manual intervention is required to minimize human errors. No more data entry is required, probably just data verification. However, Finance has the right to manually overwrite or change any of the value should there be such a need.
+I also intend to transfer the processed data analyzed by the prebuilt model into Azure SQL Data Warehouse. At the same time, the data will also be transferred via API to the internal Finance application (e.g. SAP) so Finance can make payment to the external parties on time. No more data entry is required, probably just data verification. No manual intervention is required to minimize human errors. However, Finance has the right to manually overwrite or change any of the value should there be such a need.
 
 Idea #5: Consume the Output Data in MS Power BI
 
-It would be interesting to set a few key KPIs in MS Power BI to track Finance efficiency. For example, the number of invoices received vs paid, the total invoice value paid over time, the time taken from invoice submission to invoice paid etc. Also, we can use historical data to do trending as well as forecast on future invoices. This is important for Finance to ensure there is sufficient cashflow on hand.
+It would be interesting to develop key KPIs in MS Power BI to track Finance efficiency using the data in Azure SQL Data Warehouse. For example, the number of invoices received vs paid, the total invoice value paid over time, the time taken from invoice submission to invoice paid etc. Also, we can use historical data to do trending as well as forecast on future invoices. This is important for Finance to ensure there is sufficient cashflow on hand.
