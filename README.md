@@ -102,13 +102,19 @@ Designing a solution from scratch can be overwhelming, but with the help of Azur
 
 
 ## What's next for easyinvoicesubmission
-I wish I have more time to improvise this solution. There are 2 main things I had in mind but due to time and knowledge constraint, they are not implemented in the solution yet. 
+I wish I have more time to improvise this solution. There are a few other ideas I had in mind but due to time constraint, they are not implemented in the solution yet. 
 
 Idea #1: Include Analyzing Receipt Model
 I actually want to include another model for analyzing receipt. So the idea is to create another folder in DropBox called "Receipt Submission". Then I would create another Logic Apps to process the receipts and apply similar process flow like invoice submission.
 
-Idea #2: Allow Finance Management to Approve or Reject Invoice with High threshold Value
+Idea #2: Change Repository to Azure Blob Storage instead of OneDrive
+For the purposes of cost efficiency & easy set up, I chose OneDrive as the single repository to ingest and store all the invoices. This is assuming the number of incoming invoices is not too overwhelming. However, as time goes by, when there are more invoices coming in, it is much preferred to store the invoices copy in Azure Blob Storage.
+
+Idea #3: Allow Finance Management to Approve or Reject Invoice with High threshold Value
 The workflow can be further improved by allowing Finance Management to approve or reject invoices with high threshold value before Finance Colleagues proceed to process them. The approval process is sometimes required as part of Governance process.
 
-Idea #3: Save the Processed Data into Flat File or Azure Blob Storage
-I also intend to save the processed data analyzed by the prebuilt model into a flat file such as CSV or JSON or Azure Blob Storage. Everyday there will be a cut off time (assuming 6pm) where invoices submitted and data analyzed by "easyinvoicesubmission" before 6pm would be compiled. This file will be auto uploaded to the internal Finance application (e.g. SAP FICO module) so Finance can pay the external parties on time. All data is automatically filled in to the internal Finance application and no manual intervention is required to minimize human errors. No more data entry is required, probably just data verification. However, Finance has the right to manually overwrite or change any of the value should there be such a need.
+Idea #4: Save the Processed Data into Flat File 
+I also intend to save the processed data analyzed by the prebuilt model into a flat file such as CSV or JSON . Everyday there will be a cut off time (assuming 6pm) where invoices submitted and data analyzed by "easyinvoicesubmission" before 6pm would be compiled. This file will be auto uploaded to the internal Finance application (e.g. SAP) so Finance can make payment to the external parties on time. All data is automatically filled in to the internal Finance application and no manual intervention is required to minimize human errors. No more data entry is required, probably just data verification. However, Finance has the right to manually overwrite or change any of the value should there be such a need.
+
+Idea #5: Consume the Output Data in MS Power BI
+It would be interesting to set a few key KPIs in MS Power BI to track Finance efficiency. For example, the number of invoices received vs paid, the total invoice value paid over time, the time taken from invoice submission to invoice paid etc. Also, we can use historical data to do trending as well as forecast on future invoices. This is important for Finance to ensure there is sufficient cashflow on hand.
