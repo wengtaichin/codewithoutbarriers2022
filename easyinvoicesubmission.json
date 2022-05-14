@@ -111,13 +111,13 @@
                                         {
                                             "greater": [
                                                 "@items('Successful')?['fields']?['InvoiceTotal']?['valueNumber']",
-                                                1000
+                                                500
                                             ]
                                         },
                                         {
                                             "greater": [
                                                 "@items('Successful')?['fields']?['AmountDue']?['valueNumber']",
-                                                1000
+                                                500
                                             ]
                                         }
                                     ]
