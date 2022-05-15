@@ -72,7 +72,7 @@ _Login ID: mshackathon_3@outlook.com_
 
 _Password: Microsoft2022!_
 
-"easyinvoicesubmission" will continue to determine if either the Invoice Amount or Amount Due is greater than 1000 as that is the threshold set for categorized as high threshold invoice. For invoice which meets the criteria, Finance Management will be alerted with an email notification. It is just a FYI email and no action is required from Finance Management. For invoice with low threshold value, the process stops at Finance processing and for invoice with high threshold value, the process stops at Finance Management alert.
+"easyinvoicesubmission" will continue to determine if either the Invoice Amount or Amount Due is greater than 500 as that is the threshold set for categorized as high threshold invoice. For invoice which meets the criteria, Finance Management will be alerted with an email notification. It is just a FYI email and no action is required from Finance Management. For invoice with low threshold value, the process stops at Finance processing and for invoice with high threshold value, the process stops at Finance Management alert.
 
 That concludes the process for "easyinvoicesubmission".
 
